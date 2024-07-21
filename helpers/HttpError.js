@@ -1,4 +1,4 @@
-export const messageList = {
+const messageList = {
   400: "Bad Request",
   401: "Unauthorized",
   403: "Forbidden",

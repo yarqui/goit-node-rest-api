@@ -28,7 +28,7 @@ const getContactById = async (contactId) => {
   try {
     const contactsArr = await listContacts();
     const contact = contactsArr.find(({ id }) => contactId === id);
-
+    // TODO: refactor it with index
     return contact ?? null;
   } catch (error) {
     console.error("Error getting contact with this id:", error);
@@ -40,7 +40,6 @@ const removeContactById = async (contactId) => {
   try {
     const contactsArr = await listContacts();
     const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
-
     if (contactIdx === -1) {
       return null;
     }
@@ -75,4 +74,33 @@ const addContact = async (data) => {
   }
 };
 
-export default { listContacts, getContactById, removeContactById, addContact };
+const updateContact = async (contactId, updatedContactData) => {
+  try {
+    const contactsArr = await listContacts();
+    const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
+    if (contactIdx === -1) {
+      return null;
+    }
+
+    const updatedContact = {
+      ...contactsArr[contactIdx],
+      ...updatedContactData,
+    };
+    contactsArr[contactIdx] = updateContact;
+
+    await updateContactsFile(contactsArr);
+
+    return updatedContact;
+  } catch (error) {
+    console.error("Error updating a contact", error);
+    throw error;
+  }
+};
+
+export default {
+  listContacts,
+  getContactById,
+  removeContactById,
+  addContact,
+  updateContact,
+};
