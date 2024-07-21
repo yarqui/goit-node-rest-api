@@ -28,7 +28,7 @@ const getContactById = async (contactId) => {
   try {
     const contactsArr = await listContacts();
     const contact = contactsArr.find(({ id }) => contactId === id);
-    // TODO: refactor it with index
+
     return contact ?? null;
   } catch (error) {
     console.error("Error getting contact with this id:", error);
@@ -86,7 +86,8 @@ const updateContact = async (contactId, updatedContactData) => {
       ...contactsArr[contactIdx],
       ...updatedContactData,
     };
-    contactsArr[contactIdx] = updateContact;
+
+    contactsArr[contactIdx] = updatedContact;
 
     await updateContactsFile(contactsArr);
 
