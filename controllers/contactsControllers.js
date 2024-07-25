@@ -4,7 +4,7 @@ import contactsService from "../services/contactsServices.js";
 
 const getAllContacts = async (_, res) => {
   const contacts = await contactsService.listContacts();
-  return res.status(200).json(contacts);
+  return res.json(contacts);
 };
 
 const getOneContact = async (req, res) => {
@@ -14,7 +14,7 @@ const getOneContact = async (req, res) => {
     throw HttpError(404);
   }
 
-  res.status(200).json(contact);
+  res.json(contact);
 };
 
 const createContact = async (req, res) => {
@@ -38,7 +38,7 @@ const updateContact = async (req, res) => {
     throw HttpError(404);
   }
 
-  res.status(200).json(updatedContact);
+  res.json(updatedContact);
 };
 
 const deleteContact = async (req, res) => {
@@ -48,7 +48,7 @@ const deleteContact = async (req, res) => {
     throw HttpError(404);
   }
 
-  res.status(200).json(contact);
+  res.json(contact);
 };
 
 export default {
