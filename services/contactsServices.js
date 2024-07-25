@@ -5,97 +5,64 @@ import { nanoid } from "nanoid";
 const contactsPath = resolve("db", "contacts.json");
 
 const updateContactsFile = async (contactsArr) => {
-  try {
-    await writeFile(contactsPath, JSON.stringify(contactsArr, null, 2));
-  } catch (error) {
-    console.error("Error updating contact", error);
-    throw error;
-  }
+  await writeFile(contactsPath, JSON.stringify(contactsArr, null, 2));
 };
 
 const listContacts = async () => {
-  try {
-    const contactsData = await readFile(contactsPath);
+  const contactsData = await readFile(contactsPath);
 
-    return JSON.parse(contactsData);
-  } catch (error) {
-    console.error("Error listing contacts", error);
-    throw error;
-  }
+  return JSON.parse(contactsData);
 };
 
 const getContactById = async (contactId) => {
-  try {
-    const contactsArr = await listContacts();
-    const contact = contactsArr.find(({ id }) => contactId === id);
+  const contactsArr = await listContacts();
+  const contact = contactsArr.find(({ id }) => contactId === id);
 
-    return contact ?? null;
-  } catch (error) {
-    console.error("Error getting contact with this id:", error);
-    throw error;
-  }
+  return contact ?? null;
 };
 
 const removeContactById = async (contactId) => {
-  try {
-    const contactsArr = await listContacts();
-    const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
-    if (contactIdx === -1) {
-      return null;
-    }
-
-    const [removedContact] = contactsArr.splice(contactIdx, 1);
-
-    await updateContactsFile(contactsArr);
-
-    return removedContact;
-  } catch (error) {
-    console.error("Error removing a contact", error);
-    throw error;
+  const contactsArr = await listContacts();
+  const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
+  if (contactIdx === -1) {
+    return null;
   }
+
+  const [removedContact] = contactsArr.splice(contactIdx, 1);
+  await updateContactsFile(contactsArr);
+
+  return removedContact;
 };
 
 const addContact = async (data) => {
-  try {
-    const newContact = {
-      id: nanoid(),
-      ...data,
-    };
+  const newContact = {
+    id: nanoid(),
+    ...data,
+  };
 
-    const contactsArr = await listContacts();
-    contactsArr.push(newContact);
+  const contactsArr = await listContacts();
+  contactsArr.push(newContact);
+  await updateContactsFile(contactsArr);
 
-    await updateContactsFile(contactsArr);
-
-    return newContact;
-  } catch (error) {
-    console.error("Error adding a contact", error);
-    throw error;
-  }
+  return newContact;
 };
 
 const updateContact = async (contactId, updatedContactData) => {
-  try {
-    const contactsArr = await listContacts();
-    const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
-    if (contactIdx === -1) {
-      return null;
-    }
-
-    const updatedContact = {
-      ...contactsArr[contactIdx],
-      ...updatedContactData,
-    };
-
-    contactsArr[contactIdx] = updatedContact;
-
-    await updateContactsFile(contactsArr);
-
-    return updatedContact;
-  } catch (error) {
-    console.error("Error updating a contact", error);
-    throw error;
+  const contactsArr = await listContacts();
+  const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
+  if (contactIdx === -1) {
+    return null;
   }
+
+  const updatedContact = {
+    ...contactsArr[contactIdx],
+    ...updatedContactData,
+  };
+
+  contactsArr[contactIdx] = updatedContact;
+  await updateContactsFile(contactsArr);
+
+  return updatedContact;
 };
 
 export default {
