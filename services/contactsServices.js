@@ -6,6 +6,7 @@ const listContacts = async () => {
   const contactsArr = contactsData.map((contact) => contact.toJSON());
   return contactsArr;
 };
+
 const getContactById = async (contactId) => {
   const contact = await Contact.findOne({
     where: { id: contactId },
@@ -14,9 +15,9 @@ const getContactById = async (contactId) => {
   return contact;
 };
 
-const addContact = async (data) => {
+const addContact = async (body) => {
   const newContact = await Contact.create({
-    ...data,
+    ...body,
   });
 
   return newContact;
@@ -34,9 +35,9 @@ const removeContactById = async (contactId) => {
   return removedContact;
 };
 
-const updateContact = async (contactId, updatedContactData) => {
+const updateContact = async (contactId, body) => {
   await Contact.update(
-    { ...updatedContactData },
+    { ...body },
     {
       where: { id: contactId },
     }
@@ -47,10 +48,25 @@ const updateContact = async (contactId, updatedContactData) => {
   return updatedContact;
 };
 
+const updateStatusContact = async (contactId, body) => {
+  console.log("body:", body);
+  await Contact.update(
+    {
+      ...body,
+    },
+    { where: { id: contactId } }
+  );
+
+  const updatedContact = await Contact.findOne({ where: { id: contactId } });
+
+  return updatedContact;
+};
+
 export default {
   listContacts,
   getContactById,
   removeContactById,
   addContact,
   updateContact,
+  updateStatusContact,
 };

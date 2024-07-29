@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 
-// TODO: add env
 const HOST = "dpg-cqjcig8gph6c73956vhg-a.frankfurt-postgres.render.com";
 const USER = "yar";
 const PASSWORD = "YLSnJQeOiGQkZWQMpLdllu28VOTkYEUm";

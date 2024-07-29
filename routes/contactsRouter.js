@@ -22,4 +22,10 @@ contactsRouter
   )
   .delete("/:id", ctrl.deleteContact);
 
+contactsRouter.patch(
+  "/:id/favorite",
+  validateBody(contactSchemas.updateContactStatusSchema),
+  ctrl.updateContactStatus
+);
+
 export default contactsRouter;
