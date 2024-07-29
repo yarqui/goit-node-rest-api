@@ -1,66 +1,48 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
-import { nanoid } from "nanoid";
-
-const contactsPath = resolve("db", "contacts.json");
-
-const updateContactsFile = async (contactsArr) => {
-  await writeFile(contactsPath, JSON.stringify(contactsArr, null, 2));
-};
+import { Contact } from "../schemas/contactsSchemas.js";
 
 const listContacts = async () => {
-  const contactsData = await readFile(contactsPath);
+  const contactsData = await Contact.findAll();
 
-  return JSON.parse(contactsData);
+  const contactsArr = contactsData.map((contact) => contact.toJSON());
+  return contactsArr;
 };
-
 const getContactById = async (contactId) => {
-  const contactsArr = await listContacts();
-  const contact = contactsArr.find(({ id }) => contactId === id);
+  const contact = await Contact.findOne({
+    where: { id: contactId },
+  });
 
-  return contact ?? null;
-};
-
-const removeContactById = async (contactId) => {
-  const contactsArr = await listContacts();
-  const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
-  if (contactIdx === -1) {
-    return null;
-  }
-
-  const [removedContact] = contactsArr.splice(contactIdx, 1);
-  await updateContactsFile(contactsArr);
-
-  return removedContact;
+  return contact;
 };
 
 const addContact = async (data) => {
-  const newContact = {
-    id: nanoid(),
+  const newContact = await Contact.create({
     ...data,
-  };
-
-  const contactsArr = await listContacts();
-  contactsArr.push(newContact);
-  await updateContactsFile(contactsArr);
+  });
 
   return newContact;
 };
 
+const removeContactById = async (contactId) => {
+  const removedContact = await getContactById(contactId);
+
+  await Contact.destroy({
+    where: {
+      id: contactId,
+    },
+  });
+
+  return removedContact;
+};
+
 const updateContact = async (contactId, updatedContactData) => {
-  const contactsArr = await listContacts();
-  const contactIdx = contactsArr.findIndex(({ id }) => contactId === id);
-  if (contactIdx === -1) {
-    return null;
-  }
+  await Contact.update(
+    { ...updatedContactData },
+    {
+      where: { id: contactId },
+    }
+  );
 
-  const updatedContact = {
-    ...contactsArr[contactIdx],
-    ...updatedContactData,
-  };
-
-  contactsArr[contactIdx] = updatedContact;
-  await updateContactsFile(contactsArr);
+  const updatedContact = await getContactById(contactId);
 
   return updatedContact;
 };
