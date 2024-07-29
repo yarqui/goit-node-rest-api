@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import { connectDB } from "./db/database.js";
 
 import contactsRouter from "./routes/contactsRouter.js";
 
@@ -23,6 +24,11 @@ app.use((err, _, res, __) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running. Use our API on port: ${PORT}`);
-});
+const startServer = async () => {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`Server is running. Use our API on port: ${PORT}`);
+  });
+};
+
+startServer();
