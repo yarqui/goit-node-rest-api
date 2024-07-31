@@ -36,28 +36,13 @@ const removeContactById = async (contactId) => {
 };
 
 const updateContact = async (contactId, body) => {
-  await Contact.update(
+  const [_, [updatedContact]] = await Contact.update(
     { ...body },
     {
       where: { id: contactId },
+      returning: true,
     }
   );
-
-  const updatedContact = await getContactById(contactId);
-
-  return updatedContact;
-};
-
-const updateStatusContact = async (contactId, body) => {
-  console.log("body:", body);
-  await Contact.update(
-    {
-      ...body,
-    },
-    { where: { id: contactId } }
-  );
-
-  const updatedContact = await Contact.findOne({ where: { id: contactId } });
 
   return updatedContact;
 };
@@ -68,5 +53,4 @@ export default {
   removeContactById,
   addContact,
   updateContact,
-  updateStatusContact,
 };

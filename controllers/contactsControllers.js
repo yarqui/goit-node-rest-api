@@ -31,8 +31,9 @@ const updateContact = async (req, res) => {
     throw HttpError(400, "Body must have at least one field");
   }
 
-  const { id } = req.params;
-  const updatedContact = await contactsService.updateContact(id, req.body);
+  const { body, params } = req;
+  const { id } = params;
+  const updatedContact = await contactsService.updateContact(id, body);
 
   if (!updatedContact) {
     throw HttpError(404);
@@ -51,23 +52,10 @@ const deleteContact = async (req, res) => {
   res.json(contact);
 };
 
-const updateContactStatus = async (req, res) => {
-  const { body, params } = req;
-  const { id } = params;
-
-  const contact = await contactsService.updateStatusContact(id, body);
-  if (!contact) {
-    throw HttpError(404);
-  }
-
-  res.status(200).json(contact);
-};
-
 export default {
   getAllContacts: ctrlWrapper(getAllContacts),
   getOneContact: ctrlWrapper(getOneContact),
   deleteContact: ctrlWrapper(deleteContact),
   createContact: ctrlWrapper(createContact),
   updateContact: ctrlWrapper(updateContact),
-  updateContactStatus: ctrlWrapper(updateContactStatus),
 };
