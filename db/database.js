@@ -1,9 +1,6 @@
 import { Sequelize } from "sequelize";
 
-const HOST = "dpg-cqjcig8gph6c73956vhg-a.frankfurt-postgres.render.com";
-const USER = "yar";
-const PASSWORD = "YLSnJQeOiGQkZWQMpLdllu28VOTkYEUm";
-const DB = "dbcontacts_v7ln";
+const { HOST, USER, PASSWORD, DB } = process.env;
 
 const sequelize = new Sequelize(
   `postgresql://${USER}:${PASSWORD}@${HOST}/${DB}`,
