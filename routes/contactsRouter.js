@@ -1,6 +1,6 @@
 import express from "express";
 import ctrl from "../controllers/contactsControllers.js";
-import { contactSchemas } from "../schemas/contactsSchemas.js";
+import contactSchemas from "../schemas/contactsSchemas.js";
 import validateBody from "../helpers/validateBody.js";
 
 const contactsRouter = express.Router();
