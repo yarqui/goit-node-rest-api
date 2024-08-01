@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 import "dotenv/config";
 
+const { SERVER_PORT = 3000 } = process.env;
 import { connectDB } from "./db/database.js";
 import contactsRouter from "./routes/contactsRouter.js";
 
@@ -23,12 +24,10 @@ app.use((err, _, res, __) => {
   res.status(status).json({ message });
 });
 
-const PORT = process.env.PORT || 3000;
-
 const startServer = async () => {
   await connectDB();
-  app.listen(PORT, () => {
-    console.log(`Server is running. Use our API on port: ${PORT}`);
+  app.listen(SERVER_PORT, () => {
+    console.log(`Server is running. Use our API on port: ${SERVER_PORT}`);
   });
 };
 
