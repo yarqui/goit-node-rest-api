@@ -26,7 +26,7 @@ app.use((err, _, res, __) => {
 
 const startServer = async () => {
   await connectDB();
-  app.listen(SERVER_PORT, () => {
+  app.listen(Number(SERVER_PORT), () => {
     console.log(`Server is running. Use our API on port: ${SERVER_PORT}`);
   });
 };
