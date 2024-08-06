@@ -1,26 +1,21 @@
-import Contact from "../models/Contact.js";
+import Contact from "../db/models/Contact.js";
 
-const listContacts = async () => {
-  const contactsData = await Contact.findAll();
+const listContacts = () => Contact.findAll();
 
-  const contactsArr = contactsData.map((contact) => contact.toJSON());
-  return contactsArr;
-};
-
-const getContactById = async (contactId) => {
-  const contact = await Contact.findOne({
+const getContactById = (contactId) =>
+  Contact.findOne({
     where: { id: contactId },
   });
 
-  return contact;
-};
+const addContact = (body) => Contact.create(body);
 
-const addContact = async (body) => {
-  const newContact = await Contact.create({
-    ...body,
-  });
+const updateContact = async (contactId, body) => {
+  const contact = await getContactById(contactId);
+  if (!contact) {
+    return null;
+  }
 
-  return newContact;
+  return contact.update(body, { returning: true });
 };
 
 const removeContactById = async (contactId) => {
@@ -33,18 +28,6 @@ const removeContactById = async (contactId) => {
   });
 
   return removedContact;
-};
-
-const updateContact = async (contactId, body) => {
-  const [_, [updatedContact]] = await Contact.update(
-    { ...body },
-    {
-      where: { id: contactId },
-      returning: true,
-    }
-  );
-
-  return updatedContact;
 };
 
 export default {
