@@ -1,5 +1,6 @@
-import { sequelize } from "../db/database.js";
 import { DataTypes } from "sequelize";
+import { sequelize } from "../database.js";
+import { emailRegex } from "../../constants/constants.js";
 
 const Contact = sequelize.define("Contact", {
   name: {
@@ -10,7 +11,7 @@ const Contact = sequelize.define("Contact", {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    validate: { isEmail: true, len: [5, 60] },
+    validate: { is: emailRegex },
   },
   phone: {
     type: DataTypes.STRING,
@@ -21,8 +22,12 @@ const Contact = sequelize.define("Contact", {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  owner: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
 
-Contact.sync();
+// Contact.sync();
 
 export default Contact;
