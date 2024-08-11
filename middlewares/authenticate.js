@@ -1,27 +1,34 @@
-import HttpError from "../helpers/HttpError";
+import HttpError from "../helpers/HttpError.js";
 import jwt from "jsonwebtoken";
+import authServices from "../services/authServices.js";
 
 const { JWT_SECRET } = process.env;
 
-const authenticate = async (req, res, next) => {
-  const { authorization } = req.headers;
+export const authenticate = async (req, _, next) => {
+  const { authorization = "" } = req.headers;
   if (!authorization) {
-    return next(HttpError(401, "Authorization header missing"));
+    return next(HttpError(401, "Not authorized. Authorization header missing"));
   }
   const [bearer, token] = authorization.split(" ");
 
   if (bearer !== "Bearer") {
-    return next(HttpError(401, "Bearer missing"));
+    return next(HttpError(401, "Not authorized. Bearer missing"));
   }
 
   try {
     const { id } = jwt.verify(token, JWT_SECRET);
 
-    const user = await finUser({ id });
+    const user = await authServices.findUser({ id });
     if (!user) {
-      return next(HttpError(401, "User not found"));
+      return next(HttpError(401, "Not authorized. User not found"));
     }
-    //   TODO: finish this middleware
+
+    if (!user.token || user.token !== token) {
+      return next(HttpError(401, "Not authorized. Invalid token"));
+    }
+
+    req.user = user;
+    next();
   } catch (error) {
     next(HttpError(401, error.message));
   }

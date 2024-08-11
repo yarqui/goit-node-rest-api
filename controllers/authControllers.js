@@ -37,11 +37,20 @@ const signin = async (req, res) => {
   });
 };
 const signout = async (req, res) => {
-  // TODO: FINISH
+  const { id } = req.user;
+  await authServices.updateUser({ id }, { token: "" });
+  return res.status(204).json();
+};
+
+const getCurrent = async (req, res) => {
+  const { email, subscription } = req.user;
+
+  res.status(200).json({ email, subscription });
 };
 
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   signout: ctrlWrapper(signout),
+  getCurrent: ctrlWrapper(getCurrent),
 };
