@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import authServices from "../services/authServices.js";
-import bcrypt from "bcrypt";
 
 const { JWT_SECRET } = process.env;
 const signup = async (req, res) => {
@@ -48,9 +48,24 @@ const getCurrent = async (req, res) => {
   res.status(200).json({ email, subscription });
 };
 
+const updateUserSubscription = async (req, res) => {
+  const { id } = req.user;
+  const { subscription } = req.body;
+  if (!subscription) {
+    throw HttpError(400);
+  }
+
+  const user = await authServices.updateUser({ id }, { subscription });
+  if (!user) {
+    throw HttpError(404);
+  }
+  res.json({ email: user.email, subscription: user.subscription });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   signout: ctrlWrapper(signout),
   getCurrent: ctrlWrapper(getCurrent),
+  updateUserSubscription: ctrlWrapper(updateUserSubscription),
 };

@@ -1,16 +1,20 @@
 import Contact from "../db/models/Contact.js";
 
-const listContacts = () => Contact.findAll();
+const listContacts = (query = {}, { page = 1, limit = 10 }) => {
+  const normalizedLimit = Number(limit);
+  const offset = (Number(page) - 1) * normalizedLimit;
+  return Contact.findAll({ where: query, offset, limit: normalizedLimit });
+};
 
-const getContactById = (contactId) =>
+export const getContact = (query) =>
   Contact.findOne({
-    where: { id: contactId },
+    where: query,
   });
 
 const addContact = (body) => Contact.create(body);
 
-const updateContact = async (contactId, body) => {
-  const contact = await getContactById(contactId);
+const updateContact = async (query, body) => {
+  const contact = await getContact(query);
   if (!contact) {
     return null;
   }
@@ -18,13 +22,15 @@ const updateContact = async (contactId, body) => {
   return contact.update(body, { returning: true });
 };
 
-const removeContactById = async (contactId) => {
-  const removedContact = await getContactById(contactId);
+const removeContact = async (query) => {
+  const removedContact = await getContact(query);
 
+  if (!removedContact) {
+    return null;
+  }
+  
   await Contact.destroy({
-    where: {
-      id: contactId,
-    },
+    where: query,
   });
 
   return removedContact;
@@ -32,8 +38,8 @@ const removeContactById = async (contactId) => {
 
 export default {
   listContacts,
-  getContactById,
-  removeContactById,
+  getContact,
+  removeContact,
   addContact,
   updateContact,
 };
