@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../database.js";
 import { emailRegex, subscriptionTypes } from "../../constants/constants.js";
 
-const User = sequelize.define("User", {
+const User = sequelize.define("user", {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -30,6 +30,6 @@ const User = sequelize.define("User", {
   },
 });
 
-// User.sync();
+// User.sync({ force: true });
 
 export default User;

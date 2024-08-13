@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../database.js";
 import { emailRegex } from "../../constants/constants.js";
 
-const Contact = sequelize.define("Contact", {
+const Contact = sequelize.define("contact", {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -28,6 +28,6 @@ const Contact = sequelize.define("Contact", {
   },
 });
 
-// Contact.sync();
+// Contact.sync({ force: true });
 
 export default Contact;
