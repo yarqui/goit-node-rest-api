@@ -1,10 +1,14 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import path from "node:path";
+import fs from "node:fs/promises";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import authServices from "../services/authServices.js";
 
 const { JWT_SECRET } = process.env;
+const avatarPath = path.resolve("public", "avatars");
+
 const signup = async (req, res) => {
   const { email, subscription } = await authServices.signup(req.body);
   res.status(201).json({ user: { email, subscription } });
@@ -24,18 +28,19 @@ const signin = async (req, res) => {
   }
 
   const { id } = user;
-
   const payload = { id };
-
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
-
   const updatedUser = await authServices.updateUser({ id }, { token });
 
   res.json({
     token,
-    user: { email: updatedUser.email, subscription: updatedUser.subscription },
+    user: {
+      email: updatedUser.email,
+      subscription: updatedUser.subscription,
+    },
   });
 };
+
 const signout = async (req, res) => {
   const { id } = req.user;
   await authServices.updateUser({ id }, { token: "" });
@@ -43,9 +48,9 @@ const signout = async (req, res) => {
 };
 
 const getCurrent = async (req, res) => {
-  const { email, subscription } = req.user;
+  const { email, subscription, avatarURL } = req.user;
 
-  res.status(200).json({ email, subscription });
+  res.status(200).json({ email, subscription, avatarURL });
 };
 
 const updateUserSubscription = async (req, res) => {
@@ -55,11 +60,41 @@ const updateUserSubscription = async (req, res) => {
     throw HttpError(400);
   }
 
-  const user = await authServices.updateUser({ id }, { subscription });
-  if (!user) {
-    throw HttpError(404);
+  const updatedUser = await authServices.updateUser({ id }, { subscription });
+  if (!updatedUser) {
+    throw HttpError(401);
   }
-  res.json({ email: user.email, subscription: user.subscription });
+  res.json({
+    email: updatedUser.email,
+    subscription: updatedUser.subscription,
+  });
+};
+
+const updateUserAvatar = async (req, res) => {
+  if (!req.file) {
+    throw HttpError(400, "Missing the file to upload");
+  }
+  const { id, avatarURL: previousAvatarURL } = req.user;
+  const { path: oldPath, filename } = req.file;
+
+  const newPath = path.join(avatarPath, filename);
+  await fs.rename(oldPath, newPath);
+
+  const updatedUser = await authServices.updateUser(
+    { id },
+    { avatarURL: newPath }
+  );
+
+  if (!updatedUser) {
+    throw HttpError(401);
+  }
+
+  if (!previousAvatarURL.startsWith("http")) {
+    await fs.unlink(previousAvatarURL);
+  }
+  const { avatarURL } = updatedUser;
+
+  res.json({ avatarURL });
 };
 
 export default {
@@ -68,4 +103,5 @@ export default {
   signout: ctrlWrapper(signout),
   getCurrent: ctrlWrapper(getCurrent),
   updateUserSubscription: ctrlWrapper(updateUserSubscription),
+  updateUserAvatar: ctrlWrapper(updateUserAvatar),
 };
