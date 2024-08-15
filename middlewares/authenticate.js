@@ -9,8 +9,8 @@ export const authenticate = async (req, _, next) => {
   if (!authorization) {
     return next(HttpError(401, "Not authorized. Authorization header missing"));
   }
-  const [bearer, token] = authorization.split(" ");
 
+  const [bearer, token] = authorization.split(" ");
   if (bearer !== "Bearer") {
     return next(HttpError(401, "Not authorized. Bearer missing"));
   }
@@ -22,7 +22,6 @@ export const authenticate = async (req, _, next) => {
     if (!user) {
       return next(HttpError(401, "Not authorized. User not found"));
     }
-
     if (!user.token || user.token !== token) {
       return next(HttpError(401, "Not authorized. Invalid token"));
     }
