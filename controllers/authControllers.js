@@ -77,20 +77,31 @@ const updateUserAvatar = async (req, res) => {
   const { id, avatarURL: previousAvatarURL } = req.user;
   const { path: oldPath, filename } = req.file;
 
+  const newAvatarURL = `/avatars/${filename}`;
   const newPath = path.join(avatarPath, filename);
   await fs.rename(oldPath, newPath);
 
   const updatedUser = await authServices.updateUser(
     { id },
-    { avatarURL: newPath }
+    { avatarURL: newAvatarURL }
+    // { avatarURL: newPath }
   );
 
   if (!updatedUser) {
     throw HttpError(401);
   }
 
-  if (!previousAvatarURL.startsWith("http")) {
-    await fs.unlink(previousAvatarURL);
+  if (previousAvatarURL && !previousAvatarURL.startsWith("http")) {
+    const previousAvatarPath = path.join(
+      avatarPath,
+      path.basename(previousAvatarURL)
+    );
+    
+    try {
+      await fs.unlink(previousAvatarPath);
+    } catch (err) {
+      console.error(`Error deleting previous avatar file: ${err.message}`);
+    }
   }
   const { avatarURL } = updatedUser;
 
