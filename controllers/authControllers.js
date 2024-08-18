@@ -84,7 +84,6 @@ const updateUserAvatar = async (req, res) => {
   const updatedUser = await authServices.updateUser(
     { id },
     { avatarURL: newAvatarURL }
-    // { avatarURL: newPath }
   );
 
   if (!updatedUser) {
@@ -96,7 +95,7 @@ const updateUserAvatar = async (req, res) => {
       avatarPath,
       path.basename(previousAvatarURL)
     );
-    
+
     try {
       await fs.unlink(previousAvatarPath);
     } catch (err) {
