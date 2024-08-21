@@ -29,6 +29,7 @@ const getOneContact = async (req, res) => {
 
 const createContact = async (req, res) => {
   const { id: owner } = req.user;
+
   const contact = await contactsService.addContact({ ...req.body, owner });
   if (!contact) {
     throw HttpError(404);
