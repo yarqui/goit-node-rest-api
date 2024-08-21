@@ -7,11 +7,15 @@ import upload from "../middlewares/upload.js";
 
 const authRouter = express.Router();
 const authMiddleware = validateBody(authSchemas.authSchema);
+const authUpdateMiddleware = validateBody(authSchemas.updateSubscriptionSchema);
+const verifyEmailMiddleware = validateBody(authSchemas.resendVerifyEmailSchema);
 const authUpdateSubscriptionMiddleware = validateBody(
   authSchemas.updateSubscriptionSchema
 );
 
 authRouter.post("/signup", authMiddleware, ctrl.signup);
+authRouter.get("/verify/:verificationToken", ctrl.verifyEmail);
+authRouter.post("/verify", verifyEmailMiddleware, ctrl.resendVerifyEmail);
 authRouter.post("/signin", authMiddleware, ctrl.signin);
 authRouter.post("/signout", authenticate, ctrl.signout);
 authRouter.get("/current", authenticate, ctrl.getCurrent);

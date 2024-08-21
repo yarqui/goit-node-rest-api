@@ -22,6 +22,10 @@ const signin = async (req, res) => {
     throw HttpError(401, "Email or password is wrong");
   }
 
+  if (!user.verified) {
+    throw HttpError(403, "You need to verify your email first");
+  }
+
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
     throw HttpError(401, "Email or password is wrong");
@@ -107,11 +111,51 @@ const updateUserAvatar = async (req, res) => {
   res.json({ avatarURL });
 };
 
+const verifyEmail = async (req, res) => {
+  const { verificationToken } = req.params;
+  console.log(verificationToken);
+
+  const user = await authServices.findUser({ verificationToken });
+
+  if (!user) {
+    throw HttpError(404, "User not found or already verified");
+  }
+
+  await authServices.updateUser(
+    { verificationToken },
+    {
+      verified: true,
+      verificationToken: null,
+    }
+  );
+
+  res.status(200).json({ message: "Verification successful" });
+};
+
+const resendVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const user = await authServices.findUser({ email });
+  if (!user) {
+    throw HttpError(404, "Email not found");
+  }
+  if (user.verified) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+
+  await authServices.sendVerifyEmail(user.email, user.verificationToken);
+
+  res.json({
+    message: "Verification email sent",
+  });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   signout: ctrlWrapper(signout),
   getCurrent: ctrlWrapper(getCurrent),
   updateUserSubscription: ctrlWrapper(updateUserSubscription),
+  verifyEmail: ctrlWrapper(verifyEmail),
+  resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
   updateUserAvatar: ctrlWrapper(updateUserAvatar),
 };
