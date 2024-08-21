@@ -12,4 +12,15 @@ const updateSubscriptionSchema = Joi.object({
     .required(),
 });
 
-export default { authSchema, updateSubscriptionSchema };
+const resendVerifyEmailSchema = Joi.object({
+  email: Joi.string()
+    .regex(emailRegex)
+    .required()
+    .messages({ "any.required": "missing required field email" }),
+});
+
+export default {
+  authSchema,
+  updateSubscriptionSchema,
+  resendVerifyEmailSchema,
+};

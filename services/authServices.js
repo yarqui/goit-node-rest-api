@@ -1,5 +1,10 @@
-import User from "../db/models/User.js";
 import bcrypt from "bcrypt";
+import { nanoid } from "nanoid";
+
+import User from "../db/models/User.js";
+import sendEmail from "../helpers/sendEmail.js";
+
+const { BASE_URL } = process.env;
 
 const findUser = (query) => User.findOne({ where: query });
 
@@ -12,11 +17,29 @@ const updateUser = async (query, data) => {
   return user.update(data, { returning: true });
 };
 
+const sendVerifyEmail = (email, verificationToken) => {
+  const verifyEmail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="${BASE_URL}/api/auth/verify/${verificationToken}">Click to verify your email</a>`,
+  };
+
+  return sendEmail(verifyEmail);
+};
+
 const signup = async (data) => {
   try {
-    const { password } = data;
+    const { email, password } = data;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ ...data, password: hashedPassword });
+    const verificationToken = nanoid();
+
+    const newUser = await User.create({
+      ...data,
+      password: hashedPassword,
+      verificationToken,
+    });
+
+    await sendVerifyEmail(email, verificationToken);
 
     return newUser;
   } catch (error) {
@@ -28,4 +51,4 @@ const signup = async (data) => {
   }
 };
 
-export default { findUser, updateUser, signup };
+export default { findUser, updateUser, signup, sendVerifyEmail };
